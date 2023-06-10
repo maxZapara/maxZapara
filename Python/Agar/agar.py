@@ -13,11 +13,11 @@ height=1000
 size=2000
 color=['yellow','green','red','blue','orange','grey','brown','purple','white','sky blue','dimgray','forest green','pink','tomato','olive','black']
 
-cp=[10,-10,8,-8,7,-7,6,-6,5,-5]
+vgarSpeed=[10,-10,8,-8,7,-7,6,-6,5,-5]
 
 size_window = (width, height)
 window = pygame.display.set_mode(size_window)
-pygame.display.set_caption('Game ')
+pygame.display.set_caption('Game MaxAgar')
 
 class Ball(pygame.sprite.Sprite):
     def __init__(self,poss,j):
@@ -29,7 +29,7 @@ class Ball(pygame.sprite.Sprite):
         self.image.fill(self.color)
         self.rect = self.image.get_rect(center=poss)
     def update(self,poss):
-        pygame.draw.circle(window,self.color,poss,self.size/2*math.sqrt(2))
+        radius = self.size/2*math.sqrt(2)
         if pygame.sprite.collide_rect(self,agar):
             self.rect.x=random.randint(-size,size)
             self.rect.y=random.randint(-size,size)
@@ -39,6 +39,7 @@ class Ball(pygame.sprite.Sprite):
             u.size+=0.9
             self.rect.x=random.randint(-size,size)
             self.rect.y=random.randint(-size,size)
+        pygame.draw.circle(window,self.color,poss,radius)
             
 class Agar(pygame.sprite.Sprite):
     def __init__(self,poss,g):
@@ -50,7 +51,8 @@ class Agar(pygame.sprite.Sprite):
         self.image.fill(self.color)
         self.rect = self.image.get_rect(center=poss)
     def update(self,poss):
-        self.rect.update(self.rect.left,self.rect.top,self.size,self.size)
+        #self.rect.update(self.rect.left,self.rect.top,self.size,self.size)
+       
         keys = pygame.key.get_pressed()
         if keys[pygame.K_RIGHT] and self.rect.x<=size:
             self.rect.x+=7
@@ -60,7 +62,7 @@ class Agar(pygame.sprite.Sprite):
             self.rect.y+=7
         if keys[pygame.K_UP] and self.rect.y>=-size:
             self.rect.y-=7
-        pygame.draw.circle(window,self.color,poss,self.size/2*math.sqrt(2))
+       
         lwl=pygame.sprite.spritecollide(self,vgar_group,False)
         for h in lwl:
             if self.size<=h.size:
@@ -73,19 +75,12 @@ class Agar(pygame.sprite.Sprite):
                 h.size=random.randint(20,45)
                 h.rect.x=random.randint(-size,size)
                 h.rect.y=random.randint(-size,size)
-'''        lul=pygame.sprite.spritecollide(vgar_group,vgar_group,False)
-        for f in lul:
-            if self.size<=f.size:
-                f.size+=(self.size/3)
-                self.size=30
-                self.rect.x=random.randint(-size,size)
-                self.rect.y=random.randint(-size,size)
-            if self.size>f.size:
-                self.size+=(f.size/3)
-                f.size=random.randint(20,45)
-                f.rect.x=random.randint(-size,size)
-                f.rect.y=random.randint(-size,size)'''
+
+        radius=self.size/2*math.sqrt(2)
         
+        centerPos = (poss[0]+self.size/2,poss[1]+self.size/2)
+        pygame.draw.circle(window,self.color,centerPos,radius)
+
 
 
 class Vragar(pygame.sprite.Sprite):
@@ -97,8 +92,8 @@ class Vragar(pygame.sprite.Sprite):
         self.image = pygame.Surface([self.size,self.size])
         self.image.fill(self.color)
         self.rect = self.image.get_rect(center=poss)
-        self.speedx=random.choice(cp)
-        self.speedy=random.choice(cp)
+        self.speedx=random.choice(vgarSpeed)
+        self.speedy=random.choice(vgarSpeed)
     def update(self,poss):
         self.rect.x+=self.speedx
         self.rect.y+=self.speedy 
@@ -187,7 +182,7 @@ while run:
     #agar_group.update()
     #agar_group.draw(window)
     camera.draw_sprite(agar)
-    text1 = str(agar.size)
+    text1 ='My agar size: ' +str(round(agar.size,2))
     text_image = font.render(text1, True, pygame.Color('white'))
     window.blit (text_image, (10,10))
 #    s=10
