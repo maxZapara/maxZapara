@@ -3,22 +3,27 @@ import random
 import math
 from datetime import datetime
 
+#configs
+screenWidth=1000
+screenHeight=1000
+screenSize=2000
+victoryCondition = 0
+agarInitialSize = 32
+minVgarInitialSize = 20
+maxVgarInitialSize = 45
+ballSize = 10
+timeLimit = 180
+vgarSpeed=[10,-10,9,-9,8,-8,7,-7,6,-6,5,-5]
+dontHighlighVgars = False
+
+
 pygame.init()
 black = (0,0,0)
 red = (255,0,0)
 green = (0,255,0)
 white = (255,255,255)
-
-screenWidth=1000
-screenHeight=1000
-screenSize=2000
-victoryCondition = 100
+startTime = datetime.now()
 color=['yellow','green','red','blue','orange','grey','brown','purple','sky blue','dimgray','forest green','pink','tomato','olive']
-
-# datetime object containing current date and time
-now = datetime.now()
-
-vgarSpeed=[10,-10,8,-8,7,-7,6,-6,5,-5]
 
 size_window = (screenWidth, screenHeight)
 window = pygame.display.set_mode(size_window)
@@ -36,7 +41,7 @@ class Ball(pygame.sprite.Sprite):
     def __init__(self,poss,j):
         pygame.sprite.Sprite.__init__(self)
         super().__init__(j)
-        self.size=10
+        self.size=ballSize
         self.color=random.choice(color)
         self.image = pygame.Surface([self.size,self.size])
         self.image.fill(self.color)
@@ -59,14 +64,25 @@ class Agar(pygame.sprite.Sprite):
     def __init__(self,poss,g):
         pygame.sprite.Sprite.__init__(self)
         super().__init__(g)
-        self.size=30
+        self.size=agarInitialSize
         self.color=random.choice(color)
         self.image = pygame.Surface([self.size,self.size])
         self.image.fill(self.color)
         self.rect = self.image.get_rect(center=poss)
+        self.font = pygame.font.Font('freesansbold.ttf', 15)
 
     def countRating(self,vgars):
         return sum(map(lambda x : x.size>self.size, vgars))
+    
+    def draw(self, poss):
+        radius=self.size/2*math.sqrt(2)
+        centerPos = (poss[0]+self.size/2,poss[1]+self.size/2)
+        pygame.draw.circle(window,self.color,centerPos,radius)
+        displayName=f'{round(self.size,2)}'
+        text = self.font.render(displayName, True, pygame.Color('black'))
+        textRect = text.get_rect()
+        textRect.center = (centerPos[0],centerPos[1])
+        window.blit(text, textRect)
 
     def update(self,poss):
         self.rect.update(self.rect.left,self.rect.top,self.size,self.size)
@@ -97,10 +113,9 @@ class Agar(pygame.sprite.Sprite):
   #              h.rect.x=random.randint(-size,size)
    #             h.rect.y=random.randint(-size,size)
 
-        radius=self.size/2*math.sqrt(2)
         
-        centerPos = (poss[0]+self.size/2,poss[1]+self.size/2)
-        pygame.draw.circle(window,self.color,centerPos,radius)
+        self.draw(poss)
+        
 
 
 
@@ -108,7 +123,7 @@ class Vragar(pygame.sprite.Sprite):
     def __init__(self,poss,group):
         pygame.sprite.Sprite.__init__(self)
         super().__init__(group)
-        self.size=random.randint(20,45)
+        self.size=random.randint(minVgarInitialSize,maxVgarInitialSize)
         self.color=random.choice(color)
         self.image = pygame.Surface([self.size,self.size])
         self.image.fill(self.color)
@@ -121,7 +136,12 @@ class Vragar(pygame.sprite.Sprite):
     def draw(self, poss):
         pygame.draw.circle(window,self.color,poss,self.size/2*math.sqrt(2))
         displayName=f'{self.name} [{round(self.size,2)}]'
-        text = self.font.render(displayName, True, pygame.Color('white'))
+        if self.size < agar.size or dontHighlighVgars :
+            color = 'white'
+        else :
+            color = 'red' 
+
+        text = self.font.render(displayName, True, pygame.Color(color))
         textRect = text.get_rect()
         textRect.center = (poss[0],poss[1])
         window.blit(text, textRect)
@@ -206,28 +226,31 @@ while run:
 
     camera.draw_sprite(agar)
     currentRating = agar.countRating(vgar_group)
+    timeLeft = timeLimit - (datetime.now() - startTime).seconds
 
-    text1 =f'My agar size:  {str(round(agar.size,2))}. Vgars left: {len(vgar_group)}. My rating: {currentRating}'
-    text_image = font.render(text1, True, pygame.Color('white'))
-    window.blit (text_image, (10,10))
+    textScore =f'My agar size:  {str(round(agar.size,2))}. Vgars left: {len(vgar_group)}. My rating: {currentRating}. Time left: {timeLeft} sec'
+    textScoreImage = font.render(textScore, True, pygame.Color('white'))
+    window.blit (textScoreImage, (10,10))
 
-    if (currentRating < victoryCondition):
+    if (currentRating == victoryCondition):
         run=False
         victoryFont = pygame.font.SysFont('veranda', 45,False, False)
-        text2 =f'VICTORY!!!!'
-        text_image2 = victoryFont.render(text2, True, pygame.Color('red'))
-        window.blit (text_image2, (screenHeight * 0.4, screenHeight/2 - 50))
-        text3 =f'My agar size:  {str(round(agar.size,2))}. Vgars left: {len(vgar_group)}. Time spent: {(datetime.now() - now).seconds} sec'
-        text_image3 = victoryFont.render(text3, True, pygame.Color('red'))
-        window.blit (text_image3, (screenHeight * 0.05, screenHeight/2 + 50))
-
-#    s=10
- #   for o in range(70):
-  #      s+=10
-   #     for q in vgar_group:
-    #        text2 = str(q.size)
-     #       text_image = font.render(text2, True, pygame.Color('white'))
-      #      window.blit (text_image, (600,10+s))
+        textVictory =f'VICTORY!!!!'
+        textVictoryImage = victoryFont.render(textVictory, True, pygame.Color('red'))
+        window.blit (textVictoryImage, (screenHeight * 0.4, screenHeight/2 - 50))
+        textStats =f'My agar size:  {str(round(agar.size,2))}. Vgars left: {len(vgar_group)}. Time spent: {(datetime.now() - startTime).seconds} sec'
+        textStatsImage = victoryFont.render(textStats, True, pygame.Color('red'))
+        window.blit (textStatsImage, (screenHeight * 0.05, screenHeight/2 + 50))
+    
+    if timeLeft < 0:
+        run=False
+        victoryFont = pygame.font.SysFont('veranda', 45,False, False)
+        textVictory =f'GAME OVER!!!!'
+        textVictoryImage = victoryFont.render(textVictory, True, pygame.Color('grey'))
+        window.blit (textVictoryImage, (screenHeight * 0.4, screenHeight/2 - 50))
+        textStats =f'My agar size:  {str(round(agar.size,2))}. Vgars left: {len(vgar_group)}. My rating: {currentRating}'
+        textStatsImage = victoryFont.render(textStats, True, pygame.Color('grey'))
+        window.blit (textStatsImage, (screenHeight * 0.15, screenHeight/2 + 50))
 
     pygame.display.update()
     pygame.time.delay(50)
