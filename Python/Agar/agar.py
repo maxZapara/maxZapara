@@ -14,7 +14,7 @@ maxVgarInitialSize = 45
 ballSize = 10
 timeLimit = 180
 vgarSpeed=[10,-10,9,-9,8,-8,7,-7,6,-6,5,-5]
-dontHighlighVgars = False
+
 
 
 pygame.init()
@@ -29,14 +29,23 @@ size_window = (screenWidth, screenHeight)
 window = pygame.display.set_mode(size_window)
 pygame.display.set_caption('Game MaxAgar')
 
+class Configs:
+    dontHighlighVgars = True
+    keysUp= [pygame.K_UP, pygame.K_w,pygame.K_KP_8]
+    keysDown=[pygame.K_DOWN,pygame.K_s,pygame.K_KP_5]
+    keysLeft=[pygame.K_LEFT,pygame.K_a,pygame.K_KP_4]
+    keysRight=[pygame.K_RIGHT,pygame.K_d,pygame.K_KP_6]
+    #   keys = pygame.key.get_pressed()
+        
+        
+
 class NameGenerator:
     def __init__(self):
-        self.names3=['Їжачок',"Слоник","Максик","Хробак","Крот","Врагар"]
-        self.names2=["Веселий","Злий","Кульгавий","Дотепний","Кмітливий","Швидкий","Лінивий"]
-        self.names1=["Дуже","Трохи","Зовсім","Ледве","Майже","Не","Помірно","Повністю"]
+        self.names3=['Їжачок',"Слоник","Максик","Хробак","Крот","Врагар","Котик","Карасик","Шарик","Голуб","Сокіл","Байбак","Суслик","Порося","Паладін","Мустанг","Телега"]
+        self.names2=["Веселий","Злий","Кульгавий","Дотепний","Кмітливий","Швидкий","Лінивий","Сильний","Добрий","Прожорливий","Просто",""]
+        self.names1=["Дуже","Трохи","Зовсім","Ледве","Майже","Не","Помірно","Повністю","","","Не дуже"]
         self.name = f'{random.choice(self.names1)} {random.choice(self.names2)} {random.choice(self.names3)}' 
                
-        
 class Ball(pygame.sprite.Sprite):
     def __init__(self,poss,j):
         pygame.sprite.Sprite.__init__(self)
@@ -74,6 +83,13 @@ class Agar(pygame.sprite.Sprite):
     def countRating(self,vgars):
         return sum(map(lambda x : x.size>self.size, vgars))
     
+    def keyPressed(self, keysPressed, keysConfigured):
+        for k in keysConfigured:
+            if keysPressed[k] :
+                return True
+        return False
+        
+    
     def draw(self, poss):
         radius=self.size/2*math.sqrt(2)
         centerPos = (poss[0]+self.size/2,poss[1]+self.size/2)
@@ -88,13 +104,13 @@ class Agar(pygame.sprite.Sprite):
         self.rect.update(self.rect.left,self.rect.top,self.size,self.size)
 
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_RIGHT] and self.rect.x<=screenSize:
+        if self.keyPressed(keys, Configs.keysRight) and self.rect.x<=screenSize:
             self.rect.x+=7
-        if keys[pygame.K_LEFT] and self.rect.x>=-screenSize:
+        if self.keyPressed(keys, Configs.keysLeft) and self.rect.x>=-screenSize:
             self.rect.x-=7
-        if keys[pygame.K_DOWN] and self.rect.y<=screenSize:
+        if self.keyPressed(keys, Configs.keysDown) and self.rect.y<=screenSize:
             self.rect.y+=7
-        if keys[pygame.K_UP] and self.rect.y>=-screenSize:
+        if self.keyPressed(keys, Configs.keysUp) and self.rect.y>=-screenSize:
             self.rect.y-=7
        
         lwl=pygame.sprite.spritecollide(self,vgar_group,False)
@@ -116,9 +132,6 @@ class Agar(pygame.sprite.Sprite):
         
         self.draw(poss)
         
-
-
-
 class Vragar(pygame.sprite.Sprite):
     def __init__(self,poss,group):
         pygame.sprite.Sprite.__init__(self)
@@ -136,7 +149,7 @@ class Vragar(pygame.sprite.Sprite):
     def draw(self, poss):
         pygame.draw.circle(window,self.color,poss,self.size/2*math.sqrt(2))
         displayName=f'{self.name} [{round(self.size,2)}]'
-        if self.size < agar.size or dontHighlighVgars :
+        if self.size < agar.size or Configs.dontHighlighVgars :
             color = 'white'
         else :
             color = 'red' 
@@ -221,6 +234,15 @@ while run:
             run = False
 
     font = pygame.font.SysFont('veranda', 25,False, False)
+
+    keys = pygame.key.get_pressed()
+
+    if keys[pygame.K_9]:
+        Configs.dontHighlighVgars = False
+        print('k9')
+    if keys[pygame.K_0]:
+       Configs.dontHighlighVgars = True
+       print('k0')
 
     window.fill (black)
 
