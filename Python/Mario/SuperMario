@@ -7,53 +7,124 @@ red = (255,0,0)
 green = (0,255,0)
 white = (255,255,255)
 
-width=900
-height =540
-
-class Brick(pygame.sprite.Sprite):
-    def __init__(self, x, y):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load('brick.png')
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-
-map=[
-    '------------------------------',
-    '-                            -',
-    '-                            -',
-    '-                            -',
-    '-                            -',
-    '-           ----             -',
-    '-                            -',
-    '-                            -',
-    '-                            -',
-    '-     -      -      -        -',
-    '-                            -',
-    '-        ---------           -',
-    '-                            -',
-    '-                            -',
-    '-     --           --        -',
-    '-                            -',
-    '-                            -',
-    '------------------------------'
-]
-
-brick_group=pygame.sprite.Group()
-x=0
-y=0
-for i in map:
-    for c in i:
-        if c=='-':
-            brick=Brick(x,y)
-            brick_group.add(brick)
-        x+=30
-    x=0
-    y+=30
+width=600
+height=540
 
 size_window = (width, height)
 window = pygame.display.set_mode(size_window)
 pygame.display.set_caption('Game ')
+
+width1=4290
+height1 =540
+
+pygame.display.set_caption('SuperMario by MZ4')
+
+class Brick(pygame.sprite.Sprite):
+    def __init__(self,poss,group):
+        pygame.sprite.Sprite.__init__(self)
+        super().__init__(group)
+        self.image = pygame.image.load('brick.png')
+        self.rect = self.image.get_rect(topleft=poss)
+    def update(self,poss):
+        window.blit(self.image,poss)
+
+class Question(pygame.sprite.Sprite):
+    def __init__(self,poss,group):
+        pygame.sprite.Sprite.__init__(self)
+        super().__init__(group)
+        self.image = pygame.image.load('Question.png')
+        self.rect = self.image.get_rect(topleft=poss)
+    def update(self,poss):
+        window.blit(self.image,poss)
+
+
+class Mario(pygame.sprite.Sprite):
+    def __init__(self,poss,group):
+        pygame.sprite.Sprite.__init__(self)
+        super().__init__(group)
+        self.image = pygame.image.load('din1.png')
+        self.rect = self.image.get_rect(topleft=poss)
+    def update(self,poss):
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_KP_4]:
+            self.rect.x-=20
+        if keys[pygame.K_KP_6]:
+            self.rect.x+=20
+        window.blit(self.image,poss)
+
+'''class CameraGroup(pygame.sprite.Group):
+    def __init__(self):
+        super().__init__()
+        #зчитуємо розміри екрану та визначаємо координати центра
+        self.display = pygame.display.get_surface()
+        self.x = 0
+        self.y = 0
+        self.width_2 = self.display.get_size()[0] // 2
+  #      self.height_2 = self.display.get_size()[1] // 2
+
+    def center_camera(self, player):
+        #встановлюємо координати камери на головного героя
+        self.x = player.rect.centerx - self.width_2
+  #      self.y = player.rect.centery - self.height_2
+        self.y=player.rect.y
+'''
+class CameraGroup(pygame.sprite.Group):
+    def __init__(self):
+        super().__init__()
+        self.display = pygame.display.get_surface()
+        self.x = 0
+        self.y = 0
+        self.width_2 = self.display.get_size()[0] // 2
+        #self.height_2 = self.display.get_size()[1] // 2
+
+    def center_camera(self, player):
+        self.x = player.rect.centerx - self.width_2
+        #self.y = player.rect.centery - self.height_2
+
+    def draw_sprite(self, spritik):
+        self.center_camera(spritik)
+        for sprite in self.sprites():
+            pos_x = sprite.rect.x - self.x
+            #pos_y = sprite.rect.y - self.y
+            sprite.update((pos_x,sprite.rect.y))
+
+    def draw_sprite1(self, spritik):
+        self.center_camera(spritik)
+        # показуємо усі справйти з групи у нових координатах
+        for sprite in self.sprites():
+            pos_x = sprite.rect.x - self.x
+  #          pos_y = sprite.rect.y - self.y
+            sprite.update((pos_x,sprite.rect.y))
+'''''''''''''''''''''    def center_camera(self, player):
+        if not((self.x <= 5) and (player.rect.centerx - self.width_2 < self.x)) and not((self.x >= size-width-5) and (player.rect.centerx - self.width_2 > self.x)):
+            self.x = player.rect.centerx - self.width_2'''''''''''''''''''''
+        #self.y = player.rect.centery - self.height_2
+
+with open('lvl1.txt') as f:
+    map = f.readlines()
+
+camera_group=CameraGroup()
+
+brick_group=pygame.sprite.Group()
+question_group=pygame.sprite.Group()
+mario_group=pygame.sprite.Group()
+mario=Mario((50,438),camera_group)
+mario_group.add(mario)
+x=-50
+y=0
+for i in map:
+    for c in i:
+        if c=='-':
+            brick=Brick((x,y),camera_group)
+            brick_group.add(brick)
+        elif c=='?':
+            question=Question((x,y),camera_group)
+            question_group.add(question)
+        x+=30
+    x=-50
+    y+=30
+
+
 run=True
 while run:
     for event in pygame.event.get():
@@ -61,7 +132,10 @@ while run:
             run = False
 
     window.fill (black)
-    brick_group.draw(window)
+    camera_group.draw_sprite(mario)
+    '''brick_group.draw(window)
+    question_group.draw(window)
+    mario_group.draw(window)'''
     pygame.time.delay(50)
     pygame.display.update()
 
