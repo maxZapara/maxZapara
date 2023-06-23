@@ -17,6 +17,21 @@ pygame.display.set_caption('Game ')
 width1=4290
 height1 =540
 
+def jump(y):
+    global make_jump, jump_count
+    if jump_count>=-30:
+        y-=jump_count/2.5
+        jump_count-=1
+        print('gg')
+    else:
+        jump_count=30
+        make_jump=False
+    return y
+
+
+jump_count=30
+make_jump=False
+
 pygame.display.set_caption('SuperMario by MZ4')
 
 class Brick(pygame.sprite.Sprite):
@@ -27,6 +42,16 @@ class Brick(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft=poss)
     def update(self,poss):
         window.blit(self.image,poss)
+
+class Steals(pygame.sprite.Sprite):
+    def __init__(self,poss,group):
+        pygame.sprite.Sprite.__init__(self)
+        super().__init__(group)
+        self.image = pygame.image.load('Steals.png')
+        self.rect = self.image.get_rect(topleft=poss)
+    def update(self,poss):
+        window.blit(self.image,poss)
+
 
 class Question(pygame.sprite.Sprite):
     def __init__(self,poss,group):
@@ -44,13 +69,71 @@ class Mario(pygame.sprite.Sprite):
         super().__init__(group)
         self.image = pygame.image.load('din1.png')
         self.rect = self.image.get_rect(topleft=poss)
+        self.dx=0
+        self.dy=0
+        self.ySpeed=0.1
     def update(self,poss):
+        global make_jump
+        self.dx=0
+        self.dy=0
+        
+        brick_collide=pygame.sprite.spritecollide(self,brick_group,False)
+        # if brick_collide:
+        #     self.ySpeed=0
+        #     print(brick_collide)
+        #     print(f'## y={self.rect.y}, x={self.rect.x}')
+        #     #self.rect.y-=1
+        #     #self.collideWallY(brick_collide)
+        # else:
+        #     self.rect.y+=self.ySpeed
+        #     self.ySpeed+=0.1
+        #     print(f'## y={self.rect.y}, x={self.rect.x}')
+            
         keys = pygame.key.get_pressed()
         if keys[pygame.K_KP_4]:
-            self.rect.x-=20
+            self.dx=-1
         if keys[pygame.K_KP_6]:
-            self.rect.x+=20
+            self.dx=1
+        if keys[pygame.K_KP_8]:
+            self.dy=-1
+        if keys[pygame.K_KP_5]:
+            self.dy=1
+        self.rect.x+=self.dx*10
+        self.collideWallX(brick_collide)
+        self.rect.y+=self.dy*5
+        self.collideWallY(brick_collide)
+
+        #brick_collide_after_processing=pygame.sprite.spritecollide(self,brick_group,False)
+        #if not brick_collide_after_processing:
         window.blit(self.image,poss)
+
+    def collideWallX(self, brick_collide):
+        #brick_collide = pygame.sprite.spritecollide(self,brick_group,False)
+        for i in brick_collide:
+            if self.dx==-1:
+                self.rect.left = i.rect.right
+            elif self.dx==1:
+                self.rect.right = i.rect.left
+    def collideWallY(self, brick_collide):
+        #brick_collide = pygame.sprite.spritecollide(self,brick_group,False)
+        if brick_collide:
+            self.ySpeed=0
+            print(brick_collide)
+            print(f'## y={self.rect.y}, x={self.rect.x}')
+            #self.rect.y-=1
+            #self.collideWallY(brick_collide)
+        else:
+            self.rect.y+=self.ySpeed
+            self.ySpeed+=0.1
+            #print(f'## y={self.rect.y}, x={self.rect.x}')
+
+        for i in brick_collide:
+            if self.dy==-1:
+                self.rect.top = i.rect.bottom
+            elif self.dy==1 or self.dy==0:
+                self.rect.bottom = i.rect.top
+    
+            
 
 '''class CameraGroup(pygame.sprite.Group):
     def __init__(self):
@@ -106,6 +189,7 @@ with open('lvl1.txt') as f:
 camera_group=CameraGroup()
 
 brick_group=pygame.sprite.Group()
+steals_group=pygame.sprite.Group()
 question_group=pygame.sprite.Group()
 mario_group=pygame.sprite.Group()
 mario=Mario((50,438),camera_group)
@@ -120,6 +204,9 @@ for i in map:
         elif c=='?':
             question=Question((x,y),camera_group)
             question_group.add(question)
+        elif c=='#':
+            steals=Steals((x,y),camera_group)
+            steals_group.add(steals)
         x+=30
     x=-50
     y+=30
@@ -132,6 +219,8 @@ while run:
             run = False
 
     window.fill (black)
+    if make_jump:
+        jump(mario.rect.y)
     camera_group.draw_sprite(mario)
     '''brick_group.draw(window)
     question_group.draw(window)
