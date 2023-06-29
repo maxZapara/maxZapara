@@ -59,8 +59,15 @@ class Question(pygame.sprite.Sprite):
         super().__init__(group)
         self.image = pygame.image.load('Question.png')
         self.rect = self.image.get_rect(topleft=poss)
+        self.use=False
     def update(self,poss):
+        if pygame.sprite.spritecollide(self,mario_group,False) and not self.use:
+            mario.score+=1
+            print(mario.score)
+            self.image = pygame.image.load('block.png')
+            self.use=True
         window.blit(self.image,poss)
+
 
 
 class Mario(pygame.sprite.Sprite):
@@ -72,6 +79,7 @@ class Mario(pygame.sprite.Sprite):
         self.dx=0
         self.dy=0
         self.ySpeed=0.1
+        self.score=0
     def update(self,poss):
         global make_jump
         self.dx=0
@@ -108,19 +116,26 @@ class Mario(pygame.sprite.Sprite):
         window.blit(self.image,poss)
 
     def collideWallX(self, brick_collide):
-        #brick_collide = pygame.sprite.spritecollide(self,brick_group,False)
+        brick_collide = pygame.sprite.spritecollide(self,brick_group,False)
+        question_collide = pygame.sprite.spritecollide(self,question_group,False)
         for i in brick_collide:
             if self.dx==-1:
                 self.rect.left = i.rect.right
             elif self.dx==1:
                 self.rect.right = i.rect.left
+        for u in question_collide:
+            if self.dy==-1:
+                self.rect.top = u.rect.bottom
+            elif self.dy==1 or self.dy==0:
+                self.rect.bottom = u.rect.top
     def collideWallY(self, brick_collide):
-        #brick_collide = pygame.sprite.spritecollide(self,brick_group,False)
-        if brick_collide:
+        brick_collide = pygame.sprite.spritecollide(self,brick_group,False)
+        question_collide = pygame.sprite.spritecollide(self,question_group,False)
+        if len(brick_collide):
             self.ySpeed=0
-            print(brick_collide)
-            print(f'## y={self.rect.y}, x={self.rect.x}')
-            #self.rect.y-=1
+   #         print(brick_collide)
+     #       print(f'## y={self.rect.y}, x={self.rect.x}')
+            self.rect.y-=0.1
             #self.collideWallY(brick_collide)
         else:
             self.rect.y+=self.ySpeed
@@ -131,7 +146,12 @@ class Mario(pygame.sprite.Sprite):
             if self.dy==-1:
                 self.rect.top = i.rect.bottom
             elif self.dy==1 or self.dy==0:
-                self.rect.bottom = i.rect.top
+                 self.rect.bottom = i.rect.top
+ #      for u in question_collide:
+  #         if self.dy==-1:
+   #              self.rect.top = u.rect.bottom
+    #        elif self.dy==1 or self.dy==0:
+     #           self.rect.bottom = u.rect.top
     
             
 
@@ -192,7 +212,7 @@ brick_group=pygame.sprite.Group()
 steals_group=pygame.sprite.Group()
 question_group=pygame.sprite.Group()
 mario_group=pygame.sprite.Group()
-mario=Mario((50,438),camera_group)
+mario=Mario((50,50),camera_group)
 mario_group.add(mario)
 x=-50
 y=0
@@ -211,21 +231,28 @@ for i in map:
     x=-50
     y+=30
 
+font = pygame.font.SysFont('mvboli', 25,False, False)
 
 run=True
 while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
-
+    
     window.fill (black)
+
+    text1 = ' Mario Score-'+str(mario.score)
+    text_image = font.render(text1, True, pygame.Color('white'))
+    window.blit (text_image, (0,20))
+
     if make_jump:
         jump(mario.rect.y)
     camera_group.draw_sprite(mario)
     '''brick_group.draw(window)
     question_group.draw(window)
     mario_group.draw(window)'''
-    pygame.time.delay(50)
     pygame.display.update()
+    pygame.time.delay(50)
+
 
 pygame.quit()
