@@ -243,11 +243,12 @@ while run:
 
     text1 = ' Mario Score-'+str(mario.score)
     text_image = font.render(text1, True, pygame.Color('white'))
-    window.blit (text_image, (0,20))
+    
 
     if make_jump:
         jump(mario.rect.y)
     camera_group.draw_sprite(mario)
+    window.blit (text_image, (0,20))
     '''brick_group.draw(window)
     question_group.draw(window)
     mario_group.draw(window)'''
