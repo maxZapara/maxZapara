@@ -80,6 +80,8 @@ class Mario(pygame.sprite.Sprite):
         self.dy=0
         self.ySpeed=0.1
         self.score=0
+        self.jump=False
+        self.easy=5
     def update(self,poss):
         global make_jump
         self.dx=0
@@ -108,8 +110,9 @@ class Mario(pygame.sprite.Sprite):
             self.dy=1
         self.rect.x+=self.dx*10
         self.collideWallX(brick_collide)
-        self.rect.y+=self.dy*5
+        self.rect.y+=self.dy*self.easy
         self.collideWallY(brick_collide)
+        self.Jump()
 
         #brick_collide_after_processing=pygame.sprite.spritecollide(self,brick_group,False)
         #if not brick_collide_after_processing:
@@ -147,6 +150,14 @@ class Mario(pygame.sprite.Sprite):
                 self.rect.top = i.rect.bottom
             elif self.dy==1 or self.dy==0:
                  self.rect.bottom = i.rect.top
+    def Jump(self):
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_0]:
+            self.jump=True
+        if self.jump==True:
+            self.easy=7
+        if keys[pygame.K_q]:
+            self.ySpeed=0
  #      for u in question_collide:
   #         if self.dy==-1:
    #              self.rect.top = u.rect.bottom
@@ -233,6 +244,8 @@ for i in map:
 
 font = pygame.font.SysFont('mvboli', 25,False, False)
 
+font2 = pygame.font.SysFont('mvboli', 50,False, False)
+
 run=True
 while run:
     for event in pygame.event.get():
@@ -244,11 +257,15 @@ while run:
     text1 = ' Mario Score-'+str(mario.score)
     text_image = font.render(text1, True, pygame.Color('white'))
     
+    text2 = ' Victory!!!!!!'
+    text_image2 = font2.render(text2, True, pygame.Color('Yellow'))
 
     if make_jump:
         jump(mario.rect.y)
     camera_group.draw_sprite(mario)
     window.blit (text_image, (0,20))
+    if mario.score==30:
+        window.blit (text_image2, (200,200))
     '''brick_group.draw(window)
     question_group.draw(window)
     mario_group.draw(window)'''
