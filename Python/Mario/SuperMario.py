@@ -43,6 +43,15 @@ class Brick(pygame.sprite.Sprite):
     def update(self,poss):
         window.blit(self.image,poss)
 
+class StealsBrick(pygame.sprite.Sprite):
+    def __init__(self,poss,group):
+        pygame.sprite.Sprite.__init__(self)
+        super().__init__(group)
+        self.image = pygame.image.load('SB.png')
+        self.rect = self.image.get_rect(topleft=poss)
+    def update(self,poss):
+        window.blit(self.image,poss)
+
 class Steals(pygame.sprite.Sprite):
     def __init__(self,poss,group):
         pygame.sprite.Sprite.__init__(self)
@@ -120,12 +129,18 @@ class Mario(pygame.sprite.Sprite):
 
     def collideWallX(self, brick_collide):
         brick_collide = pygame.sprite.spritecollide(self,brick_group,False)
+        stealsBrick_collide = pygame.sprite.spritecollide(self,stealsBrick_group,False)
         question_collide = pygame.sprite.spritecollide(self,question_group,False)
         for i in brick_collide:
             if self.dx==-1:
                 self.rect.left = i.rect.right
             elif self.dx==1:
                 self.rect.right = i.rect.left
+        for e in stealsBrick_collide:
+            if self.dx==-1:
+                self.rect.left = e.rect.right
+            elif self.dx==1:
+                self.rect.right = e.rect.left
         for u in question_collide:
             if self.dy==-1:
                 self.rect.top = u.rect.bottom
@@ -133,23 +148,29 @@ class Mario(pygame.sprite.Sprite):
                 self.rect.bottom = u.rect.top
     def collideWallY(self, brick_collide):
         brick_collide = pygame.sprite.spritecollide(self,brick_group,False)
+        stealsBrick_collide = pygame.sprite.spritecollide(self,stealsBrick_group,False)
         question_collide = pygame.sprite.spritecollide(self,question_group,False)
         if len(brick_collide):
             self.ySpeed=0
-   #         print(brick_collide)
-     #       print(f'## y={self.rect.y}, x={self.rect.x}')
             self.rect.y-=0.1
-            #self.collideWallY(brick_collide)
         else:
             self.rect.y+=self.ySpeed
             self.ySpeed+=0.1
-            #print(f'## y={self.rect.y}, x={self.rect.x}')
+
+        if len(stealsBrick_collide):
+            self.ySpeed=0
+            self.rect.y-=0.1
 
         for i in brick_collide:
             if self.dy==-1:
                 self.rect.top = i.rect.bottom
             elif self.dy==1 or self.dy==0:
                  self.rect.bottom = i.rect.top
+        for e in stealsBrick_collide:
+            if self.dy==-1:
+                self.rect.top = e.rect.bottom
+            elif self.dy==1 or self.dy==0:
+                 self.rect.bottom = e.rect.top
     def Jump(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_0]:
@@ -219,6 +240,7 @@ with open('lvl1.txt') as f:
 
 camera_group=CameraGroup()
 
+stealsBrick_group=pygame.sprite.Group()
 brick_group=pygame.sprite.Group()
 steals_group=pygame.sprite.Group()
 question_group=pygame.sprite.Group()
@@ -238,6 +260,9 @@ for i in map:
         elif c=='#':
             steals=Steals((x,y),camera_group)
             steals_group.add(steals)
+        elif c=='&':
+            stealsBrick=StealsBrick((x,y),camera_group)
+            stealsBrick_group.add(stealsBrick)
         x+=30
     x=-50
     y+=30
