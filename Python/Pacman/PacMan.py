@@ -28,10 +28,35 @@ class Player(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load('Pacman.png')
         self.rect = self.image.get_rect(topleft=(x,y))
+        self.dxy=0
+        self.speed=3
+    def update(self):
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_RIGHT]:
+            self.dxy=1       
+        if keys[pygame.K_LEFT]:
+            self.dxy=-1 
+        if keys[pygame.K_DOWN]:
+            self.dxy=2
+        if keys[pygame.K_UP]:
+            self.dxy=-2
+        if self.dxy==1:
+            self.rect.x+=self.speed
+        if self.dxy==-1:
+            self.rect.x+=-self.speed
+        if self.dxy==2:
+            self.rect.y+=self.speed
+        if self.dxy==-2:
+            self.rect.y+=-self.speed
+        
+
 
 with open('lvl2.txt') as f:
     map = f.readlines()
 
+pman_group= pygame.sprite.Group()
+pman=Player(100,100)
+pman_group.add(pman)
 
 brick_group=pygame.sprite.Group()
 
@@ -43,9 +68,9 @@ for i in map:
         if c=='-':
             brick=Brick(x,y)
             brick_group.add(brick)
-        x+=30
-    x=-50
-    y+=30
+        x+=15
+    x=0
+    y+=15
 
 run=True
 while run:
@@ -54,6 +79,8 @@ while run:
             run = False
 
     window.fill (black)
+    pman_group.draw(window)
+    pman_group.update()
     brick_group.draw(window)
     pygame.time.delay(50)
     pygame.display.update()
