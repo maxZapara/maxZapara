@@ -51,7 +51,7 @@ class Player(pygame.sprite.Sprite):
         
 
 
-with open('lvl2.txt') as f:
+with open('lvl2 — копия.txt') as f:
     map = f.readlines()
 
 pman_group= pygame.sprite.Group()
