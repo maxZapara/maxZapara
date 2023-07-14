@@ -10,6 +10,8 @@ white = (255,255,255)
 width=800
 height=660
 
+score=0
+
 size_window = (width, height)
 window = pygame.display.set_mode(size_window)
 pygame.display.set_caption('PacMan')
@@ -19,7 +21,7 @@ animLeft=['PacmanLeft.png','PacmanLeft2.png','PacmanCircle.png']
 animUp=['PacmanUp.png','PacmanUp2.png','PacmanCircle.png']
 animDown=['PacmanDown.png','PacmanDown2.png','PacmanCircle.png']
 
-ghostV=['ghostRed.png','ghostBlue.png','ghostOrange.png','ghostPink.png','ghostBlue-_-.png','ghostWhite-_-.png','ghostGreen-_-.png','ghostYellow.png']
+ghostV=['ghostRed.png','ghostBlue.png','ghostOrange.png','ghostPink.png','ghostBlue-_-.png','ghostWhite-_-.png','ghostGreen-_-.png','ghostYellow.png','ghost{-_-}.png']
 
 class Brick(pygame.sprite.Sprite):
     def __init__(self,x,y):
@@ -35,9 +37,10 @@ class Eat(pygame.sprite.Sprite):
         self.image = pygame.image.load('Eat.png')
         self.rect = self.image.get_rect(topleft=(x,y))
     def update(self):
+        global score
         if self.rect.collidepoint(pman.rect.centerx,pman.rect.centery):
             self.kill()
-            pman.score+=1
+            score+=1
 
 class SuperEat(pygame.sprite.Sprite):
     def __init__(self,x,y):
@@ -45,9 +48,13 @@ class SuperEat(pygame.sprite.Sprite):
         self.image = pygame.image.load('Supereat.png')
         self.rect = self.image.get_rect(topleft=(x,y))
     def update(self):
+        global score
         if self.rect.collidepoint(pman.rect.centerx,pman.rect.centery):
             self.kill()
-            pman.score+=10
+            score+=10
+
+life=3
+
 
 class Player(pygame.sprite.Sprite):
     def __init__(self,x,y):
@@ -57,7 +64,8 @@ class Player(pygame.sprite.Sprite):
         self.dxy=0
         self.speed=5
         self.animCount=0
-        self.score=0
+        
+        
     def update(self):
         
         keys = pygame.key.get_pressed()
@@ -98,8 +106,16 @@ class Player(pygame.sprite.Sprite):
                 self.rect.top = i.rect.bottom
             if self.dxy==2:
                 self.rect.bottom = i.rect.top
-        if pygame.sprite.spritecollide(self,ghost_group,False):
-            self.kill()
+'''            if pygame.sprite.spritecollide(self,ghost_group,False):
+                self.kill()
+                self.life-=1
+                if pman.life>0:
+                    self.pman=Player(100,100)
+                    pman_group.add(self.pman)'''
+        
+            
+            
+
         
 
 class Ghost(pygame.sprite.Sprite):
@@ -183,6 +199,10 @@ for i in map:
     y+=20
 
 font = pygame.font.SysFont('mvboli', 25,False, False)
+font2 = pygame.font.SysFont('mvboli', 100,False, False)
+
+s=0
+i=False
 
 run=True
 while run:
@@ -190,8 +210,8 @@ while run:
         if event.type == pygame.QUIT:
             run = False
     window.fill (black)
-
-
+    
+    
     eat_group.draw(window)
     eat_group.update()
     superEat_group.draw(window)
@@ -201,10 +221,37 @@ while run:
     ghost_group.draw(window)
     ghost_group.update()
     brick_group.draw(window)
-    text1 = ' Pacman Score-'+str(pman.score)
+    text1 = ' Pacman Score-'+str(score)+'    Pacman Life-'+str(life)
     text_image = font.render(text1, True, pygame.Color('Blue'))
     window.blit(text_image,(-10,-10))
-    
+    if life<=0:
+        text2 = 'Game over!'
+        text_image2 = font2.render(text2, True, pygame.Color('Red'))
+        window.blit(text_image2,(140,210))
+        i=True
+    if i==True:
+        s+=1
+    if s==150:
+        break
+    if score>=600:
+        i=True
+        text3 = 'WOW! Victory!!!'
+        text_image3 = font2.render(text3, True, pygame.Color('Yellow'))
+        window.blit(text_image3,(0,210))
+
+    if pygame.sprite.spritecollide(pman,ghost_group,False):
+        pman.kill()
+        life-=1
+#        text4 = 'Oops!'
+ #       text_image4 = font2.render(text4, True, pygame.Color('Red'))
+  #      window.blit(text_image4,(100,300))
+   #     pygame.time.wait(1000)
+        if life>0:
+            pman=Player(100,100)
+            pman_group.add(pman)
+    #    pygame.time.delay(4000)
+
+
     pygame.time.delay(50)
     pygame.display.update()
 
