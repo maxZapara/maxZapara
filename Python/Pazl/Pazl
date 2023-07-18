@@ -1,0 +1,41 @@
+import pygame
+import random
+
+pygame.init()
+black = (0,0,0)
+red = (255,0,0)
+green = (0,255,0)
+white = (255,255,255)
+
+bg=pygame.image.load('Kard.jpg')
+width=820
+height=600
+
+k=16
+kard_list=[]
+for i in range(k):
+    kard_list.append(str(i+1)+'.jpg')
+print(kard_list)
+
+size_window = (width, height)
+window = pygame.display.set_mode(size_window)
+pygame.display.set_caption('Game ')
+run=True
+while run:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+    n=-1
+    for q in range(4):
+        y=q*155
+        for i in range(4):
+            n=n+1
+            x=i*205
+            window.blit(pygame.image.load('Kard1/'+kard_list[n]),(x,y))
+
+
+    #window.blit(bg,(0,0))
+    pygame.time.delay(50)
+    pygame.display.update()
+
+pygame.quit()
