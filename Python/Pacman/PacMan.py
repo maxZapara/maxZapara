@@ -201,6 +201,7 @@ for i in map:
 font = pygame.font.SysFont('mvboli', 25,False, False)
 font2 = pygame.font.SysFont('mvboli', 100,False, False)
 
+l=0
 s=0
 i=False
 
@@ -242,17 +243,20 @@ while run:
     if pygame.sprite.spritecollide(pman,ghost_group,False):
         pman.kill()
         life-=1
-#        text4 = 'Oops!'
- #       text_image4 = font2.render(text4, True, pygame.Color('Red'))
-  #      window.blit(text_image4,(100,300))
-   #     pygame.time.wait(1000)
+        text4 = 'Oops!'
+        text_image4 = font2.render(text4, True, pygame.Color('Green'))
+        l+=1
+        if l>=1 and life>=1:
+            window.blit(text_image4,(300,200))
+            pygame.display.update()
+            pygame.time.delay(3000)
+        if l>=30:
+            pygame.time.delay(5000)
         if life>0:
             pman=Player(100,100)
             pman_group.add(pman)
-    #    pygame.time.delay(4000)
-
-
-    pygame.time.delay(50)
+        
     pygame.display.update()
+    pygame.time.delay(50)
 
 pygame.quit()
