@@ -64,10 +64,7 @@ class Player(pygame.sprite.Sprite):
         self.dxy=0
         self.speed=5
         self.animCount=0
-        
-        
     def update(self):
-        
         keys = pygame.key.get_pressed()
         '''if (((keys[pygame.K_RIGHT]) and self.rect.x<width-25 and self.rect.y % 25 == 0) or (self turn an 'r' and self.rect.y % 25 == 0)):
             self.dxy=self.speed

@@ -7,7 +7,9 @@ red = (255,0,0)
 green = (0,255,0)
 white = (255,255,255)
 
-bg=pygame.image.load('Kard.jpg')
+folder=''
+
+bg=''
 width=820
 height=600
 
@@ -17,24 +19,88 @@ for i in range(k):
     kard_list.append(str(i+1)+'.jpg')
 print(kard_list)
 
+etalon_list=kard_list.copy()
+
 size_window = (width, height)
 window = pygame.display.set_mode(size_window)
 pygame.display.set_caption('Game ')
-run=True
-while run:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            run = False
+
+def change(n1,n2):
+    kard_list[n1],kard_list[n2]=kard_list[n2],kard_list[n1]
+
+kard0=12
+State=-1
+
+def drow(folder):
     n=-1
     for q in range(4):
         y=q*155
         for i in range(4):
             n=n+1
             x=i*205
-            window.blit(pygame.image.load('Kard1/'+kard_list[n]),(x,y))
+            window.blit(pygame.image.load(folder+kard_list[n]),(x,y))
 
+x=pygame.image.load('Kard1Min.jpg')
+r=pygame.image.load('Kard3Min.jpg')
+z=pygame.image.load('Kard2Min.jpg')
+j=pygame.image.load('Kard4Min.jpg')
 
-    #window.blit(bg,(0,0))
+run=True
+while run:
+    window.fill(black)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+        if event.type==pygame.KEYDOWN:
+            if event.key==pygame.K_SPACE and State==0:
+                random.shuffle(kard_list)
+                state=True
+                State+=1
+                kard0=kard_list.index('13.jpg')
+                print(kard0)
+        if event.type==pygame.MOUSEBUTTONDOWN:
+            if State==1:
+                pos=pygame.mouse.get_pos()
+                col=pos[0]//205
+                row=pos[1]//155
+                #print(col,row)
+                n=row*4+col
+                #print(n)
+                change(n,kard0)
+                kard0=n
+            if State==-1:
+                pos=pygame.mouse.get_pos()
+                print(pos)
+                if 50<pos[0]<350 and 50<pos[1]<270:
+                    folder='Kard1/'
+                    bg=pygame.image.load('Kard.jpg')
+                    State=0 
+                if 500<pos[0]<750 and 50<pos[1]<270:
+                    folder='Kard2/'
+                    State=0
+                    bg=pygame.image.load('Kard2.jpg')
+                if 50<pos[0]<350 and 350<pos[1]<570:
+                    folder='Kard3/'
+                    State=0
+                    bg=pygame.image.load('Kard3.jpg')
+                if 450<pos[0]<750 and 350<pos[1]<570:
+                    folder='Kard4/'
+                    State=0
+                    bg=pygame.image.load('Kard4.jpg')
+
+        
+
+    if State==-1:
+        window.blit(x,(50,50))
+        window.blit(z,(450,50))
+        window.blit(r,(50,350))
+        window.blit(j,(450,350))
+    if State>=0:
+        drow(folder)
+    if etalon_list==kard_list and State==1:
+        window.blit(bg,(0,0))
+        State+=1
+
     pygame.time.delay(50)
     pygame.display.update()
 
